@@ -3,8 +3,29 @@
   become: true
 
   tasks:
-  - name: nfs install
-    apt: name=nfs-common state=present
+    - name: Global - Make sure we have a 'developers' group
+      group:
+       name: developers
+       state: present
 
-  - name: install k3s
-    shell: "curl -sfL https://get.k3s.io | sh -"
+    - name: Global - Allow developers group to have passwordless sudo
+      lineinfile:
+       dest: /etc/sudoers
+       state: present
+       regexp: '^%developers'
+       line: '%developers ALL=(ALL) NOPASSWD: ALL'
+       validate: 'visudo -cf %s'
+
+    - name: Global - Add sudoers users to developers group
+      user:
+         name=tigimroot
+         groups=developers
+         append=yes
+         state=present
+         createhome=yes
+
+    - name: nfs install
+      apt: name=nfs-common state=present
+
+    - name: install k3s
+      shell: "curl -sfL https://get.k3s.io | sh -"
