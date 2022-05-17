@@ -1,0 +1,10 @@
+---
+- hosts: k3snode
+  become: true
+
+  tasks:
+  - name: nfs install
+    apt: name=nfs-common state=present
+
+  - name: install k3s
+    shell: "curl -sfL https://get.k3s.io | sh -"
